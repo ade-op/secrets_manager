@@ -1,0 +1,27 @@
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  apply:
+    name: Apply to production
+    needs: plan
+    runs-on: ubuntu-latest
+
+    environment:
+      name: production
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ vars.AWS_PROD_ROLE_ARN }}
+        aws-region: us-east-1
+        allowed-account-ids: "${{ vars.AWS_ACCOUNT_ID }}"
+
+    - name: Verify AWS account
+      run: aws sts get-caller-identity
+    # Terraform init/download plan/apply steps follow here
